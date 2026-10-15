@@ -309,7 +309,8 @@ card.appendChild(rule());
     const sw = (labelKey: string, on: boolean, fn: (v: boolean) => void) => {
       const b = button(on ? t('on') : t('off'), {
         cls: 'g-btn-toggle',
-        onClick: () => fn(b.dataset.isOn !== 'on'),
+        // 读的是 `setFlag` 写的那个类：`dataset.isOn` 从来没人写过，开了就关不掉
+        onClick: () => fn(!b.classList.contains('is-on')),
       });
       setFlag(b, 'is-on', on);
       return { b, label: labelKey };
@@ -431,6 +432,14 @@ card.appendChild(rule());
     this.colorblind = v.colorblind;
     this.reduceMotion = v.reduceMotion;
     this.holdToToggle = v.holdToToggle;
+    this.syncAccessibility();
+  }
+
+  /** 宿主在构造之后才把存档里的开关推进来（`App.ready()`），面板要跟着改显示 */
+  setSwitches(v: { colorblind?: boolean; reduceMotion?: boolean; holdToToggle?: boolean }): void {
+    if (v.colorblind !== undefined) this.colorblind = v.colorblind;
+    if (v.reduceMotion !== undefined) this.reduceMotion = v.reduceMotion;
+    if (v.holdToToggle !== undefined) this.holdToToggle = v.holdToToggle;
     this.syncAccessibility();
   }
 
